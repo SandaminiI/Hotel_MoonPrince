@@ -23,3 +23,18 @@ export const register = async(name, email, contactNumber, password) => {
     return res;
 }
 
+export const logout = async() => {
+    const res = await axios.post(`${USER_SERVICE_URL}${API_VERSION}/user/logout`,
+        {},
+        {
+            withCredentials: true,
+        });
+    return res;
+}
+
+export const getUserDetails = async() => {
+    const res = await axios.get(`${USER_SERVICE_URL}${API_VERSION}/user/get-user-details`, {
+        withCredentials: true,
+    });
+    return res;
+}
