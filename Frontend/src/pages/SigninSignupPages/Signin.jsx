@@ -166,10 +166,10 @@ const Signin = () => {
                         <div className="grow border-t border-gray-300"></div>
                       </div>
                       <p className="text-sm text-gray-600 gap-2 flex items-center justify-center">
-                        Don't have an account?
+                        Don't have an account ?
                         <Link
                             to="/signup"
-                            className="font-medium"
+                            className="font-bold"
                         >
                             Sign Up
                         </Link>
