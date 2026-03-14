@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { Bell, FileArchive, User, User2 } from 'lucide-react';
 import Logo from '../../public/Logo.png';
-import { getUserDetails, logout } from '../apiService/APIservice';
+import { getUserDetails, logout } from '../apiService/APIservice.jsx';
 import { useEffect } from 'react';
 
 const Header = () => {
@@ -161,7 +161,7 @@ const Header = () => {
                                 navigate("/signin");
                                 setOpen(false);
                             }}
-                            className="block w-full text-left px-4 py-2 bg-white! hover:bg-gray-100!"
+                            className="block w-full text-left px-4 py-2 text-purple-800 bg-white! hover:bg-gray-100! hover:border-gray-100!"
                             >
                             Sign In
                             </button>

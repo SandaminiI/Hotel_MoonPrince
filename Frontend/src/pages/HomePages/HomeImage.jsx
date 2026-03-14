@@ -8,7 +8,7 @@ const HomeImage = () => {
       alt="Home"
       className="w-full h-screen object-cover" />
       {/* Purple Overlay */}
-      <div className="absolute w-full inset-0 bg-purple-950/60"></div>
+      <div className="absolute w-full inset-0 bg-purple-950/50"></div>
       <div className='absolute inset-0 px-10 py-50 flex flex-col items-center justify-center text-center wrap-break-word gap-3'>
         <p className="text-4xl md:text-6xl lg:text-8xl font-bold text-white tracking-widest font-['Playfair_Display']">
           Welcome to<br/> Hotel MoonPrince
