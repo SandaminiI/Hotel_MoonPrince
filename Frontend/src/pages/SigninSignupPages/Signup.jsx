@@ -5,7 +5,8 @@ import { useState } from 'react';
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import logo from '../../../public/Logo.png'
-import { register } from '../../apiService/APIservice';
+import { register } from '../../apiService/APIservice.jsx'
+
 
 const Signup = () => {
     const navigate = useNavigate();
