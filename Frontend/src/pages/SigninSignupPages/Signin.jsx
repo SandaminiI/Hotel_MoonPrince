@@ -6,8 +6,8 @@ import { useState } from 'react';
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from '../../apiService/apiService';
 import logo from '../../../public/Logo.png'
+import { login } from '../../apiService/APIservice';
 
 const Signin = () => {
     const navigate = useNavigate();
@@ -32,7 +32,8 @@ const Signin = () => {
       }
 
       if (res.data.success) {
-        const { token } = res.data.token;
+        const { token } = res.data;
+        console.log(token)
 
         setAuth({
           ...auth,
@@ -41,7 +42,6 @@ const Signin = () => {
 
         toast.success("Login Successful");
         Cookies.set("access_token", token, { expires: 1 });
-        localStorage.setItem("token", token);
 
         navigate("/home");
       }
