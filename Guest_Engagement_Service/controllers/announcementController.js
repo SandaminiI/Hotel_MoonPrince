@@ -14,7 +14,7 @@ export const createAnnouncement = async (req, res) => {
             title,
             content,
             priority,
-            publishDate,
+            publishDate: publishDate ? new Date(publishDate) : new Date(),
             expiryDate,
             isPinned,
             isDraft,
