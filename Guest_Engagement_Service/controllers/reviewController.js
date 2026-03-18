@@ -39,3 +39,35 @@ export const createReview = async (req, res) => {
         });
     }
 };
+
+// Get Single Review
+export const getSingleReview = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid review ID"
+            });
+        }
+
+        const review = await Review.findById(id);
+
+        if (!review) {
+            return res.status(404).json({
+                message: "Review not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: review
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
