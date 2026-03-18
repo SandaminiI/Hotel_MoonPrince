@@ -121,3 +121,26 @@ export const updateReview = async (req, res) => {
         });
     }
 }
+
+// Get Reviews by Room ID
+export const getReviewsByRoomId = async (req, res) => {
+    try {
+        const { roomId } = req.params;
+
+        const reviews = await Review.find({ roomId })
+            .sort({ isPinned: -1, createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: reviews.length,
+            data: reviews
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
