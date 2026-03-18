@@ -186,3 +186,42 @@ export const deleteReview = async (req, res) => {
         });
     }
 };
+
+// Pin review
+export const pinReview = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const review = await Review.findById(id);
+
+        if (!review) {
+            return res.status(404).json({
+                message: "Review not found"
+            });
+        }
+
+        // unpin all reviews for that room
+        await Review.updateMany(
+            { roomId: review.roomId },
+            { isPinned: false }
+        );
+
+        const pinned = await Review.findByIdAndUpdate(
+            id,
+            { isPinned: true },
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Review pinned successfully",
+            data: pinned
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
