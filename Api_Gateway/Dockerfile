@@ -3,10 +3,11 @@ FROM node:alpine
 WORKDIR /app
 
 COPY ["package.json", "package-lock.json*", "./"]
-RUN npm install
+RUN npm install --production
+# RUN npm ci --omit=dev
 
 COPY . .
 
-EXPOSE 5173
+EXPOSE 5000
 
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npm", "start"]

@@ -4,12 +4,22 @@ import { createAnnouncement,
     getAnnouncement, 
     getAllAnnouncements,
     updateAnnouncement,
-    deleteAnnouncement } from '../controllers/announcementController.js';
+    deleteAnnouncement, 
+    pinAnnouncement,
+    publishAnnouncement,
+    filterAnnouncements,
+    getActiveAnnouncements} from '../controllers/announcementController.js';
 
 const router = express.Router();
 
 // Create Announcement
 router.post("/", upload.single('image'), createAnnouncement);
+
+// Filter Announcements
+router.get("/filter", filterAnnouncements);
+
+// Get Single Announcement
+router.get("/active", getActiveAnnouncements);
 
 // Get Single Announcement
 router.get("/:id", getAnnouncement);
@@ -21,5 +31,11 @@ router.put("/:id", upload.single('image'), updateAnnouncement);
 
 // Delete Announcement
 router.delete("/:id", deleteAnnouncement);
+
+// Pin Announcement
+router.put("/pin/:id", pinAnnouncement);
+
+// Publish Announcement
+router.put("/publish/:id", publishAnnouncement);
 
 export default router;
