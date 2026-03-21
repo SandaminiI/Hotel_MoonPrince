@@ -16,7 +16,8 @@ import ManageRoomsPage from './pages/RoomInventory/admin/ManageRoomsPage'
 import AddRoomPage from './pages/RoomInventory/admin/AddRoomPage'
 import GuestRoomsPage from './pages/RoomInventory/guest/GuestRoomsPage'
 import RoomDetailsPage from './pages/RoomInventory/guest/RoomDetailsPage'
-
+import ManageHoldsPage from "./pages/RoomInventory/admin/ManageHoldsPage";
+import AvailabilityPage from "./pages/RoomInventory/receptionist/AvailabilityPage";
 
 function App() {
 
@@ -40,6 +41,8 @@ function App() {
           <Route path="/manage-rooms" element={<ManageRoomsPage />} />
           <Route path="/guest-rooms" element={<GuestRoomsPage />} />
           <Route path="/guest-rooms/:id" element={<RoomDetailsPage />} />
+          <Route path="/manage-holds" element={<ManageHoldsPage />} />
+          <Route path="/availability" element={<AvailabilityPage />} />
 
           {/* Route path for guest engagement */}
           <Route path="/announcements" element={<Announcements />} />

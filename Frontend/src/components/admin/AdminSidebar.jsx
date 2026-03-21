@@ -6,7 +6,8 @@ import {
   CalendarClock,
   Hotel,
   PlusCircle,
-  List
+  List,
+  Archive
 } from "lucide-react";
 
 function AdminSidebar() {
@@ -141,7 +142,17 @@ function AdminSidebar() {
             <span className="text-white">Manage Rooms</span>
           </NavLink>
         </div>
-
+        
+        <NavLink
+          to="/manage-holds"
+          className={({ isActive }) =>
+          `${mainLinkClasses} ${isActive ? "bg-violet-700" : "hover:bg-white/5"}`
+          }
+        >
+          <Archive size={18} className="text-white" />
+          <span className="text-white">Manage Holds</span>
+        </NavLink>
+        
         <NavLink
           to="/reservations"
           className={({ isActive }) =>
