@@ -8,7 +8,7 @@ services:
     depends_on:
       - user_service
       - room_inventory_service
-      # - guest_service
+      - guest_service
       - payment_service
       - reservation_service
     env_file:
@@ -26,10 +26,17 @@ services:
     depends_on:
       - user_service
 
-  # guest_service:
-  #   build: ./Guest_Engagement_Service
-  #   ports:
-  #     - "8081:8081"
+  guest_service:
+    build: ./Guest_Engagement_Service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user_service
+      - reservation_service
+      - room_inventory_service
+      - payment_service
+    env_file:
+      - ./Guest_Engagement_Service/.env
 
   payment_service:
     build: ./Payment_Service
