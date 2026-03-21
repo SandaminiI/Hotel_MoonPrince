@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 import userRoutes from "./routes/userRoute.js";
 import roomInventoryRoutes from "./routes/roomInventoryRoute.js";
-// import guestRoutes from "./routes/guestRoute.js";
+import guestRoutes from "./routes/guestRoute.js";
 import paymentRoutes from "./routes/paymentRoute.js";
 
 dotenv.config();
@@ -23,7 +23,7 @@ app.use(morgan("dev"));
 // Routes
 app.use("/api/v1/userService", userRoutes);
 app.use("/api/v1/roomInventoryService", roomInventoryRoutes);
-// app.use("/api/v1/guest", guestRoutes);
+app.use("/api/v1/guestService", guestRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 
 app.listen(process.env.PORT, () => {
