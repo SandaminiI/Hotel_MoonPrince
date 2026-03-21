@@ -74,6 +74,8 @@ services:
     volumes:
       - ./Frontend:/app
       - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - api_gateway
       - user_service
