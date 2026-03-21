@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import AdminPageLayout from "../../../layouts/AdminPageLayout";
 import { createAnnouncement } from "../../../apiService/announcementService";
@@ -23,8 +25,8 @@ function AddAnnouncementsPage() {
     title: "",
     content: "",
     priority: "normal",
-    publishDate: "",
-    expiryDate: "",
+    publishDate: null,
+    expiryDate: null,
     isPinned: false,
     isDraft: false,
     createdBy: "Admin",
@@ -35,7 +37,7 @@ function AddAnnouncementsPage() {
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date();
 
   const previewUrl = useMemo(() => {
     return image ? URL.createObjectURL(image) : null;
@@ -65,8 +67,11 @@ function AddAnnouncementsPage() {
       formData.append("title", form.title);
       formData.append("content", form.content);
       formData.append("priority", form.priority);
-      formData.append("publishDate", form.publishDate || new Date().toISOString());
-      if (form.expiryDate) formData.append("expiryDate", form.expiryDate);
+      formData.append(
+        "publishDate",
+        form.publishDate ? form.publishDate.toISOString() : new Date().toISOString()
+      );
+      if (form.expiryDate) formData.append("expiryDate", form.expiryDate.toISOString());
       formData.append("isPinned", form.isPinned);
       formData.append("isDraft", isDraft);
       formData.append("createdBy", form.createdBy);
@@ -161,10 +166,10 @@ function AddAnnouncementsPage() {
               subtitle="Enter the title, priority level, and schedule for this announcement."
             />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
               {/* Title */}
-              <div className="md:col-span-2">
+              <div className="md:col-span-3">
                 <InputField
                   icon={<Megaphone size={18} />}
                   label="Announcement Title"
@@ -176,87 +181,79 @@ function AddAnnouncementsPage() {
                 />
               </div>
 
-              {/* Priority */}
-              <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-[#374151]">
-                  Priority Level
-                </label>
-                <div className="flex gap-3">
-                  {priorityOptions.map((opt) => {
-                    const isActive = form.priority === opt.value;
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setForm((p) => ({ ...p, priority: opt.value }))}
-                        className="no-outline flex flex-1 items-center justify-center gap-2 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all"
-                        style={{
-                          backgroundColor: isActive ? opt.bg : "#fff",
-                          border: `2px solid ${isActive ? opt.border : "#e5e7eb"}`,
-                          color: isActive ? opt.color : "#9ca3af",
-                          outline: "none",
-                          boxShadow: "none",
-                        }}
-                      >
-                        <Flag size={14} />
-                        {opt.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              {/* Priority + Dates (responsive: stacked on small, single row md+) */}
+              <div className="md:col-span-3 flex flex-col gap-4 md:flex-row md:items-end md:gap-4">
 
-              {/* Dates — same row */}
-              <div className="md:col-span-2">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-
-                  {/* Publish Date */}
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#374151]">
-                      Publish Date
-                    </label>
-                    <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-400">
-                      <span className="flex-shrink-0 text-violet-700">
-                        <Calendar size={18} />
-                      </span>
-                      <input
-                        type="date"
-                        name="publishDate"
-                        value={form.publishDate}
-                        onChange={handleChange}
-                        min={today}
-                        className="no-outline w-full border-none bg-transparent text-sm text-[#1f2430] outline-none"
-                      />
-                    </div>
-                    <p className="mt-1.5 text-xs text-gray-400">
-                      Defaults to today if left empty
-                    </p>
+                {/* Priority */}
+                <div className="w-full md:w-1/3 min-w-0">
+                  <label className="mb-2 block text-sm font-medium text-[#374151]">
+                    Priority Level
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {priorityOptions.map((opt) => {
+                      const isActive = form.priority === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setForm((p) => ({ ...p, priority: opt.value }))}
+                          className="no-outline flex items-center justify-center gap-2 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-all w-full sm:w-auto md:flex-1 flex-shrink-0"
+                          style={{
+                            backgroundColor: isActive ? opt.bg : "#fff",
+                            border: `2px solid ${isActive ? opt.border : "#e5e7eb"}`,
+                            color: isActive ? opt.color : "#9ca3af",
+                            outline: "none",
+                            boxShadow: "none",
+                          }}
+                        >
+                          <Flag size={14} />
+                          {opt.label}
+                        </button>
+                      );
+                    })}
                   </div>
-
-                  {/* Expiry Date */}
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-[#374151]">
-                      Expiry Date
-                    </label>
-                    <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-400">
-                      <span className="flex-shrink-0 text-violet-700">
-                        <Clock size={18} />
-                      </span>
-                      <input
-                        type="date"
-                        name="expiryDate"
-                        value={form.expiryDate}
-                        onChange={handleChange}
-                        min={form.publishDate || today}
-                        className="no-outline w-full border-none bg-transparent text-sm text-[#1f2430] outline-none"
-                      />
-                    </div>
-                    <p className="mt-1.5 text-xs text-gray-400">
-                      Optional — leave blank for no expiry
-                    </p>
-                  </div>
-
                 </div>
+
+                {/* Publish Date */}
+                <div className="w-full md:w-1/3 min-w-0">
+                  <label className="mb-2 block text-sm font-medium text-[#374151]">
+                    Publish Date
+                  </label>
+                  <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-400">
+                    <span className="flex-shrink-0 text-violet-700">
+                      <Calendar size={18} />
+                    </span>
+                    <DatePicker
+                      selected={form.publishDate}
+                      onChange={(date) => setForm((p) => ({ ...p, publishDate: date }))}
+                      minDate={today}
+                      placeholderText="Select publish date"
+                      className="no-outline w-full border-none bg-transparent text-sm text-[#1f2430] outline-none"
+                      dateFormat="yyyy-MM-dd"
+                    />
+                  </div>
+                </div>
+
+                {/* Expiry Date */}
+                <div className="w-full md:w-1/3 min-w-0">
+                  <label className="mb-2 block text-sm font-medium text-[#374151]">
+                    Expiry Date
+                  </label>
+                  <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 transition focus-within:border-violet-400">
+                    <span className="flex-shrink-0 text-violet-700">
+                      <Calendar size={18} />
+                    </span>
+                    <DatePicker
+                      selected={form.expiryDate}
+                      onChange={(date) => setForm((p) => ({ ...p, expiryDate: date }))}
+                      minDate={form.publishDate || today}
+                      placeholderText="Optional expiry date"
+                      className="no-outline w-full border-none bg-transparent text-sm text-[#1f2430] outline-none"
+                      dateFormat="yyyy-MM-dd"
+                    />
+                  </div>
+                </div>
+
               </div>
             </div>
           </section>
@@ -374,7 +371,7 @@ function AddAnnouncementsPage() {
                   <Pin
                     size={18}
                     style={{
-                      color: form.isPinned ? "#7c3aed" : "#9ca3af",
+                      color: form.isPinned ? "#6A0DAD" : "#9ca3af",
                       transform: "rotate(45deg)",
                     }}
                   />
@@ -389,7 +386,7 @@ function AddAnnouncementsPage() {
 
               <div
                 className="relative h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-200"
-                style={{ backgroundColor: form.isPinned ? "#7c3aed" : "#e5e7eb" }}
+                style={{ backgroundColor: form.isPinned ? "#6A0DAD" : "#e5e7eb" }}
               >
                 <div
                   className="absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
@@ -444,8 +441,8 @@ function AddAnnouncementsPage() {
                 className="no-outline inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-70"
                 style={{
                   background: "#fff",
-                  border: "2px solid #7c3aed",
-                  color: "#7c3aed",
+                  border: "2px solid #6A0DAD",
+                  color: "#6A0DAD",
                   outline: "none",
                   boxShadow: "none",
                 }}
@@ -459,9 +456,9 @@ function AddAnnouncementsPage() {
                 type="button"
                 disabled={submitting || !form.title || !form.content}
                 onClick={() => handleSubmit(false)}
-                className="no-outline inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="no-outline inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed"
                 style={{
-                  background: "#7c3aed",
+                  background: "#6A0DAD",
                   border: "none",
                   outline: "none",
                   boxShadow: "none",
