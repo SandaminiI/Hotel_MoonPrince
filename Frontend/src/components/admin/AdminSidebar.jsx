@@ -6,7 +6,8 @@ import {
   CalendarClock,
   Hotel,
   PlusCircle,
-  List
+  List,
+  Megaphone
 } from "lucide-react";
 
 function AdminSidebar() {
@@ -19,6 +20,10 @@ function AdminSidebar() {
   const isRoomsOpen =
     location.pathname.includes("/rooms") ||
     location.pathname.includes("add-room");
+
+  const isAnnouncementsOpen =
+  location.pathname.includes("/announcements") ||
+  location.pathname.includes("add-announcement");
 
   const mainLinkClasses =
     "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition !text-white visited:!text-white";
@@ -155,6 +160,47 @@ function AdminSidebar() {
           <CalendarClock size={18} className="text-white" />
           <span className="text-white">Reservations</span>
         </NavLink>
+
+        <div className="space-y-2">
+        <div
+          className={`${mainLinkClasses} ${
+            isAnnouncementsOpen
+              ? "bg-white/5"
+              : "hover:bg-white/5"
+          }`}
+        >
+          <Megaphone size={18} className="text-white" />
+          <span className="text-white">Announcements</span>
+        </div>
+
+        <NavLink
+          to="/add-announcement"
+          className={({ isActive }) =>
+            `${subLinkClasses} ${
+              isActive
+                ? "bg-violet-700"
+                : "hover:bg-white/5"
+            }`
+          }
+        >
+          <PlusCircle size={16} className="text-white" />
+          <span className="text-white">Add Announcement</span>
+        </NavLink>
+
+        <NavLink
+          to="/all-announcements"
+          className={({ isActive }) =>
+            `${subLinkClasses} ${
+              isActive
+                ? "bg-violet-700"
+                : "hover:bg-white/5"
+            }`
+          }
+        >
+          <List size={16} className="text-white" />
+          <span className="text-white">All Announcements</span>
+        </NavLink>
+      </div>
       </nav>
 
       <div className="mt-8 rounded-[24px] bg-white/5 p-4">
