@@ -1,11 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminPageLayout from "../../../layouts/AdminPageLayout";
 import {
   Megaphone, Search, Pin, Calendar, Clock, Flag,
   ChevronDown, Eye, Pencil, Trash2, FileText,
   CheckCircle2, SlidersHorizontal, Filter, ChevronUp,
-  X, User
-} from "lucide-react";
+  X, User } from "lucide-react";
+import { getAllAnnouncements, deleteAnnouncement, pinAnnouncement, publishAnnouncement } from "../../../apiService/announcementService";
 
 const DUMMY = [
   {
@@ -108,9 +109,16 @@ export default function AllAnnouncementsPage() {
   const [priOpen, setPriOpen]       = useState(false);
   const [draftsOpen, setDraftsOpen] = useState(false);
   const [selected, setSelected]     = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+
+  // Use fetched announcements when available, otherwise fall back to DUMMY
+  const source = announcements.length ? announcements : DUMMY;
 
   const published = useMemo(() => {
-    return DUMMY.filter((a) => !a.isDraft)
+    return source.filter((a) => !a.isDraft)
       .filter((a) => {
         const q = search.toLowerCase();
         return a.title.toLowerCase().includes(q) || a.content.toLowerCase().includes(q);
@@ -122,14 +130,69 @@ export default function AllAnnouncementsPage() {
         const da = new Date(a.createdAt), db = new Date(b.createdAt);
         return sort === "newest" ? db - da : da - db;
       });
-  }, [search, priority, sort]);
+  }, [source, search, priority, sort]);
 
   const drafts = useMemo(() => {
-    return DUMMY.filter((a) => a.isDraft).filter((a) => {
+    return source.filter((a) => a.isDraft).filter((a) => {
       const q = search.toLowerCase();
       return a.title.toLowerCase().includes(q) || a.content.toLowerCase().includes(q);
     });
-  }, [search]);
+  }, [source, search]);
+
+  // fetch announcements from backend
+  const fetchAnnouncements = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getAllAnnouncements();
+      if (res?.data?.data) setAnnouncements(res.data.data);
+    } catch (err) {
+      console.error(err);
+      setError(err?.response?.data?.message || err.message || "Failed to load announcements");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchAnnouncements(); }, []);
+
+  // actions
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this announcement?")) return;
+    try {
+      await deleteAnnouncement(id);
+      setAnnouncements((prev) => prev.filter((a) => a._id !== id));
+      // if the deleted announcement is currently open in the modal, close it
+      if (selected && selected._id === id) {
+        setSelected(null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || "Failed to delete");
+    }
+  };
+
+  const handlePin = async (id) => {
+    try {
+      await pinAnnouncement(id);
+      fetchAnnouncements();
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || "Failed to pin");
+    }
+  };
+
+  const handlePublish = async (id) => {
+    try {
+      await publishAnnouncement(id);
+      fetchAnnouncements();
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || "Failed to publish");
+    }
+  };
+
+  const navigate = useNavigate();
 
   const closeAll = () => { setSortOpen(false); setPriOpen(false); };
 
@@ -263,6 +326,9 @@ export default function AllAnnouncementsPage() {
                     item={item}
                     isDraft
                     onClick={() => setSelected(item)}
+                    onDelete={handleDelete}
+                    onPin={handlePin}
+                    onPublish={handlePublish}
                   />
                 ))}
               </div>
@@ -292,6 +358,9 @@ export default function AllAnnouncementsPage() {
                   item={item}
                   isDraft={false}
                   onClick={() => setSelected(item)}
+                  onDelete={handleDelete}
+                  onPin={handlePin}
+                  onPublish={handlePublish}
                 />
               ))}
             </div>
@@ -422,10 +491,12 @@ export default function AllAnnouncementsPage() {
                 <button
                   className="ann-no-outline inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition hover:bg-red-50"
                   style={{ borderColor: "#fca5a5", color: "#dc2626", background: "#fff", outline: "none" }}
+                  onClick={() => handleDelete(selected._id)}
                 >
                   <Trash2 size={14} /> Delete
                 </button>
                 <button
+                  onClick={() => navigate(`/edit-announcement/${selected._id}`)}
                   className="ann-no-outline inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                   style={{ background: "#7c22e8", border: "none", outline: "none" }}
                 >
@@ -441,7 +512,7 @@ export default function AllAnnouncementsPage() {
 }
 
 /* ── Card component ── */
-function AnnouncementCard({ item, isDraft, onClick }) {
+function AnnouncementCard({ item, isDraft, onClick, onDelete, onPin, onPublish }) {
   const handleAction = (e, fn) => {
     e.stopPropagation();
     fn?.();
@@ -518,6 +589,30 @@ function AnnouncementCard({ item, isDraft, onClick }) {
 
           {/* Edit + Delete icons */}
           <div className="flex items-center gap-1">
+            {isDraft ? (
+              <button
+                title="Publish"
+                onClick={(e) => handleAction(e, () => onPublish?.(item._id))}
+                className="ann-no-outline flex h-7 w-7 items-center justify-center rounded-lg transition"
+                style={{ border: "none", background: "transparent", color: "#10b981", outline: "none" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#ecfdf5"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <CheckCircle2 size={13} />
+              </button>
+            ) : (
+              <button
+                title="Pin"
+                onClick={(e) => handleAction(e, () => onPin?.(item._id))}
+                className="ann-no-outline flex h-7 w-7 items-center justify-center rounded-lg transition"
+                style={{ border: "none", background: "transparent", color: "#7c22e8", outline: "none" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#f3f0ff"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <Pin size={13} />
+              </button>
+            )}
+
             <button
               title="Edit"
               onClick={(e) => handleAction(e, () => {})}
@@ -530,7 +625,7 @@ function AnnouncementCard({ item, isDraft, onClick }) {
             </button>
             <button
               title="Delete"
-              onClick={(e) => handleAction(e, () => {})}
+              onClick={(e) => handleAction(e, () => onDelete?.(item._id))}
               className="ann-no-outline flex h-7 w-7 items-center justify-center rounded-lg transition"
               style={{ border: "none", background: "transparent", color: "#ef4444", outline: "none" }}
               onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"}
